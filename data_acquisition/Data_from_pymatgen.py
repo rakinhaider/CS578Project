@@ -21,7 +21,7 @@ df_ref_data=pd.DataFrame(data_ref)
 df_ref_data=df_ref_data.sort_values(by=['task_id'])
 df_ref=df_ref.sort_values(by=['task_id'])
 dref_final=pd.merge(df_ref, df_ref_data, on="task_id")
-dref_final.to_excel("output_ref_final.xlsx")
+#dref_final.to_excel("output_ref_final.xlsx")
 
 #Get task ids of oxides
 with MPRester("1ZEWhG2nVio5ykmM") as mpr:   
