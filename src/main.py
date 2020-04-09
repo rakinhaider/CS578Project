@@ -28,3 +28,6 @@ if __name__ == "__main__":
     for c in C_values:
         model = get_model(constants.LOG_REGRESSION, reg_param=c)
         k_fold_cross_validation(10, train_x, train_y, model)
+        
+    model = get_model(constants.SVM)
+    k_fold_cross_validation(10, train_x, train_y, model)
