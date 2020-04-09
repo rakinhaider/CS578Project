@@ -27,7 +27,9 @@ def get_model(model_type, **kwargs):
                                    max_iter=10000)
     
     elif model_type == constants.SVM:
-        model=SVC()
+        c1 = kwargs.get('reg_param', 0.8)
+        kern = kwargs.get('Kernel','rbf')
+        model=SVC(C=c1,kernel=kern)
         
         
     else:
