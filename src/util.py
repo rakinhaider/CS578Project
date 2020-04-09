@@ -4,8 +4,8 @@ from sklearn.svm import SVC
 import src.constants as constants
 
 
-def train_test_split(df):
-    test = df.sample(frac=.2)
+def train_test_split(df,fraction):
+    test = df.sample(frac=fraction)
     train = df.drop(index=test.index)
 
     return train, test
