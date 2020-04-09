@@ -1,5 +1,6 @@
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 import src.constants as constants
 
 
@@ -24,6 +25,11 @@ def get_model(model_type, **kwargs):
                                    C=c,
                                    solver=solver,
                                    max_iter=10000)
+    
+    elif model_type == constants.SVM:
+        model=SVC()
+        
+        
     else:
         return None
 
