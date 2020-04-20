@@ -1,13 +1,14 @@
 import pandas as pd
 import numpy as np
 
+from src.confusion_matrix import ConfusionMatrix
 from src.util import get_xy, get_measures
 
 
 def k_fold_cross_validation(k, X, y, model):
     df = pd.DataFrame(X)
     df['label'] = np.array(y)
-    S=[]
+    conf_mats = []
     for i in range(k):
         train, test = get_ith_fold(k, df, i)
         train_x, train_y = get_xy(train)
@@ -15,15 +16,10 @@ def k_fold_cross_validation(k, X, y, model):
         model.fit(train_x, train_y)
         pred = model.predict(test_x)
         tp, fp, fn, tn = get_measures(test_y, pred)
-        S.append({'True Positive': tp,
-                  'True Negative': tn,
-                  'False Negative': fn,
-                  'False Positive': fp,
-                  'Accuracy': (tp+tn)/(tp+tn+fp+fn)})
-    df = pd.DataFrame(S)
-    mean=df.describe()['Accuracy']['mean']
-    std=df.describe()['Accuracy']['std']
-    return S,mean,std
+        conf_mats.append(ConfusionMatrix(tp, fp, fn, tn))
+
+    accs = [mat.get_accuracy() for mat in conf_mats]
+    return np.average(accs), np.std(accs)
 
 
 def get_ith_fold(k, df, i):

@@ -4,8 +4,8 @@ from sklearn.svm import SVC
 import src.constants as constants
 
 
-def train_test_split(df,fraction):
-    test = df.sample(frac=fraction)
+def train_test_split(df, fraction=0.2):
+    test = df.sample(frac=fraction, random_state=47)
     train = df.drop(index=test.index)
 
     return train, test
@@ -24,14 +24,14 @@ def get_model(model_type, **kwargs):
         model = LogisticRegression(penalty=reg,
                                    C=c,
                                    solver=solver,
-                                   max_iter=10000)
+                                   max_iter=10000,
+                                   random_state=47)
     
     elif model_type == constants.SVM:
         c1 = kwargs.get('reg_param', 0.8)
-        kern = kwargs.get('Kernel','rbf')
-        model=SVC(C=c1,kernel=kern)
-        
-        
+        kern = kwargs.get('Kernel', 'rbf')
+        model = SVC(C=c1, kernel=kern, random_state=47)
+
     else:
         return None
 
@@ -43,7 +43,6 @@ def get_xy(df):
 
 
 def get_measures(orig, pred):
-
     tp, fp, fn, tn = (0, 0, 0, 0)
     for i in range(len(orig)):
         if orig.iloc[i] == pred[i]:
