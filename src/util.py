@@ -58,6 +58,9 @@ def get_measures(orig, pred):
 
     return tp, fp, fn, tn
 
+def get_weights(fitted_model)
+    return fitted_model.coef_
+
 #plot correlation for each feature
 def feature_plot(classifier, feature_names, top_features=4):
     coef = classifier.coef_.ravel()
