@@ -79,3 +79,6 @@ if __name__ == "__main__":
 
     # model = get_model(constants.SVM)
     # k_fold_cross_validation(10, train_x, train_y, model)
+    # print weights for fitted SVM
+    # print(model.coef_)
+    
