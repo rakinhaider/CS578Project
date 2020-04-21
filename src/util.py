@@ -58,6 +58,7 @@ def get_measures(orig, pred):
 
     return tp, fp, fn, tn
 
+#plot correlation for each feature
 def feature_plot(classifier, feature_names, top_features=4):
     coef = classifier.coef_.ravel()
     top_positive_coefficients = np.argsort(coef)[-top_features:]
