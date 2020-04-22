@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+from pandas import np
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -89,8 +90,10 @@ def plot_errorbar(x, y, yerr, model_type, param_name):
     plt.savefig(filename, format='pdf')
     plt.show()
 
-def get_weights(fitted_model)
+
+def get_weights(fitted_model):
     return fitted_model.coef_
+
 
 #plot correlation for each feature
 def feature_plot(classifier, feature_names, top_features=4):
