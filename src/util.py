@@ -1,7 +1,10 @@
+from matplotlib import pyplot as plt
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 import src.constants as constants
+from src.confusion_matrix import ConfusionMatrix
+from src import constants as constants
 
 
 def train_test_split(df, fraction=0.2):
@@ -16,7 +19,7 @@ def get_model(model_type, **kwargs):
         model = GaussianNB()
     elif model_type == constants.LOG_REGRESSION:
         reg = kwargs.get('regularizer', 'l2')
-        c = kwargs.get('reg_param', 0.8)
+        c = kwargs.get('reg_param', 1)
         if reg == 'l2':
             solver = 'lbfgs'
         else:
@@ -28,12 +31,16 @@ def get_model(model_type, **kwargs):
                                    random_state=47)
     
     elif model_type == constants.SVM:
-        c1 = kwargs.get('reg_param', 0.8)
-        kern = kwargs.get('Kernel', 'rbf')
-        model = SVC(C=c1, kernel=kern, random_state=47)
-
-    else:
-        return None
+        c1 = kwargs.get('reg_param', 1)
+        kern = kwargs.get('kernel', 'rbf')
+        if kern == 'rbf':
+            gamma = kwargs.get('gamma', 'scale')
+            model = SVC(C=c1, kernel=kern, gamma=gamma,
+                        random_state=47, max_iter=10000)
+        else:
+            model = SVC(C=c1, kernel=kern,
+                        random_state=47, max_iter=10000)
+        print(model)
 
     return model
 
@@ -42,7 +49,7 @@ def get_xy(df):
     return df[df.columns[:-1]], df[df.columns[-1]]
 
 
-def get_measures(orig, pred):
+def get_confusion_mat(orig, pred):
     tp, fp, fn, tn = (0, 0, 0, 0)
     for i in range(len(orig)):
         if orig.iloc[i] == pred[i]:
@@ -56,4 +63,29 @@ def get_measures(orig, pred):
             else:
                 fn = fn + 1
 
-    return tp, fp, fn, tn
+    return ConfusionMatrix(tp, fp, fn, tn)
+
+
+def get_filename(plot_type, model_type, extension,
+                 param_name=''):
+    if model_type == constants.NAIVE_BAYES:
+        model_type = 'NB'
+    elif model_type == constants.LOG_REGRESSION:
+        model_type = 'LR'
+    elif model_type == constants.SVM:
+        model_type = 'SVM'
+
+    filename = '../src/outputs/' + plot_type + '_'
+    filename += model_type + '_'
+    filename += param_name + '.' + extension
+    return filename
+
+
+def plot_errorbar(x, y, yerr, model_type, param_name):
+    plt.clf()
+    ticks = [i for i in range(len(x))]
+    plt.errorbar(ticks, y, yerr=yerr)
+    plt.xticks(ticks, x)
+    filename = get_filename('acc', model_type, 'pdf', param_name)
+    plt.savefig(filename, format='pdf')
+    plt.show()

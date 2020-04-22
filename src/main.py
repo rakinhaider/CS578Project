@@ -1,55 +1,70 @@
 import pandas as pd
 import numpy as np
-from src.util import get_model, train_test_split, get_xy
+from src.util import get_model, train_test_split, get_xy, get_confusion_mat, get_filename, plot_errorbar
+from src.confusion_matrix import ConfusionMatrix
 import src.constants as constants
-from src.cv import k_fold_cross_validation
+from src.cv import cross_validate
 import matplotlib.pyplot as plt
 
 
-def get_filename(model_type, param_name):
-    if model_type == constants.NAIVE_BAYES:
-        model_type = 'NB'
-    elif model_type == constants.LOG_REGRESSION:
-        model_type = 'LR'
-    elif model_type == constants.SVM:
-        model_type = 'SVM'
-
-    filename = '../src/outputs/' + model_type + '_'
-    filename += param_name + '.pdf'
-    return filename
-
-
-def plot_errorbar(x, y, yerr, model_type, param_name):
-    plt.clf()
-    plt.errorbar(x, y, yerr=yerr)
-    plt.show()
-    plt.savefig(get_filename(model_type, param_name))
-
-
-def cross_validate(model_type, dict):
-    model = get_model(model_type, **dict)
-    acc, std = k_fold_cross_validation(10, train_x, train_y, model)
-    return acc, std
-
-
-def run_xval_and_plot(model_type, param_name='none', values=None):
-    if values is None:
-        acc, std = cross_validate(model_type, {})
-        print('Mean Accuracy:', acc)
-        print('Standard Deviation:', std)
-        return
+def run_xval_and_plot(data, model_type, param_name='none', values=None):
     accs = []
     stds = []
     for val in values:
         dict = {param_name: val}
-        acc, std = cross_validate(model_type, dict)
+        acc, std = cross_validate(data, model_type, dict)
         accs.append(acc)
         stds.append(std)
 
-    print(accs)
-    print(stds)
+    # print(accs)
+    # print(stds)
     plot_errorbar(values, accs, stds,
                   model_type, param_name)
+    return accs, stds
+
+
+def plot_ROC_curve(train, test, model_type, params):
+    train_x, train_y = get_xy(train)
+    test_x, test_y = get_xy(test)
+    model = get_model(model_type, **params)
+    model.fit(train_x, train_y)
+
+    pred_prob = model.predict_proba(test_x)
+    pred_prob = pred_prob[:, 1]
+    thresholds = [0, 0.2, 0.4, 0.5, 0.6, 0.8, 1]
+    specs = []
+    sens = []
+    for thresh in thresholds:
+        pred = [1 if i > thresh else 0 for i in pred_prob]
+        conf_mat = get_confusion_mat(test_y, pred)
+        specs.append(conf_mat.get_specificity())
+        sens.append(conf_mat.get_sensitivity())
+
+    plt.clf()
+    plt.plot(specs, sens)
+    plt.plot([0, 1], [1, 0], '-')
+    plt.xlabel('Specificity')
+    plt.ylabel('Sensitivity')
+    filename = get_filename('ROC', model_type, 'pdf')
+    plt.savefig(filename, format='pdf')
+    plt.show()
+
+
+def get_best_param_combination(model_type, param_dict):
+    best_param = {}
+    for param_name in param_dict.keys():
+        print(param_name, param_dict[param_name])
+        accs, stds = run_xval_and_plot(train, model_type,
+                                       param_name,
+                                       param_dict[param_name])
+        print(accs, stds)
+        max_ind = np.argmax(accs)
+        print(max_ind)
+        print(param_dict[param_name][max_ind])
+        print(best_param)
+        best_param[param_name] = param_dict[param_name][max_ind]
+
+    return best_param
 
 
 if __name__ == "__main__":
@@ -62,20 +77,47 @@ if __name__ == "__main__":
     # print(df)
 
     train, test = train_test_split(df)
-    train_x, train_y = get_xy(train)
+    # print('Naive Bayes')
+    # acc, std = cross_validate(train, constants.NAIVE_BAYES, {})
+    # print('Mean Accuracy:', acc)
+    # print('Standard Deviation:', std)
 
-    run_xval_and_plot(constants.NAIVE_BAYES)
+    param_dict = {constants.LOG_REGRESSION: {
+        'regularizer': ['l2', 'l1'],
+        'reg_param': [10000, 1000, 1, 0.0001]
+    },
+        constants.SVM: {
+            'kernel': ['linear', 'rbf', 'sigmoid'],
+            'reg_param': [10000, 1000, 1, 0.0001],
+            'gamma': [2, 1, 0.5]
+        }}
+
+    best_param = {}
+    model_type = constants.LOG_REGRESSION
+    #param_comb = get_best_param_combination(model_type,
+    #                                        param_dict[model_type])
+    #best_param[model_type] = param_comb
+    model_type = constants.SVM
+    param_comb = get_best_param_combination(model_type,
+                                            param_dict[model_type])
+
+    best_param[model_type] = param_comb
+    print(best_param)
+
+    model_type = constants.LOG_REGRESSION
+    plot_ROC_curve(train, test,
+                   model_type, best_param[model_type])
+
+    # plot_bias_var_tradeoff(train, model_type,
+    #                       best_param[model_type])
+    
+    model_type = constants.SVM
+    plot_ROC_curve(train, test,
+                   model_type, best_param[model_type])
+
+    # plot_bias_var_tradeoff(train, model_type,
+    #                       best_param[model_type])
 
     """
-    regularizers = ['l2', 'l1']
-    run_xval_and_plot(constants.LOG_REGRESSION,
-                      'regularizer',
-                      regularizers)
-    """
-    c_values = [1, 0.8, 0.6, 0.4, 0.2]
-    run_xval_and_plot(constants.LOG_REGRESSION,
-                      'reg_param',
-                      c_values)
-
     # model = get_model(constants.SVM)
     # k_fold_cross_validation(10, train_x, train_y, model)
