@@ -62,7 +62,6 @@ def get_confusion_mat(orig, pred):
                 fp = fp + 1
             else:
                 fn = fn + 1
-
     return ConfusionMatrix(tp, fp, fn, tn)
 
 
@@ -88,4 +87,20 @@ def plot_errorbar(x, y, yerr, model_type, param_name):
     plt.xticks(ticks, x)
     filename = get_filename('acc', model_type, 'pdf', param_name)
     plt.savefig(filename, format='pdf')
+    plt.show()
+
+def get_weights(fitted_model)
+    return fitted_model.coef_
+
+#plot correlation for each feature
+def feature_plot(classifier, feature_names, top_features=4):
+    coef = classifier.coef_.ravel()
+    top_positive_coefficients = np.argsort(coef)[-top_features:]
+    top_negative_coefficients = np.argsort(coef)[:top_features]
+    top_coefficients = np.hstack([top_negative_coefficients, top_positive_coefficients])
+    plt.figure(figsize=(18, 7))
+    colors = ['green' if c < 0 else 'blue' for c in coef[top_coefficients]]
+    plt.bar(np.arange(2 * top_features), coef[top_coefficients], color=colors)
+    feature_names = np.array(feature_names)
+    plt.xticks(np.arange(1 + 2 * top_features), feature_names[top_coefficients], rotation=45, ha='right')
     plt.show()

@@ -94,30 +94,36 @@ if __name__ == "__main__":
 
     best_param = {}
     model_type = constants.LOG_REGRESSION
-    #param_comb = get_best_param_combination(model_type,
-    #                                        param_dict[model_type])
-    #best_param[model_type] = param_comb
+    param_comb = get_best_param_combination(model_type,
+                                            param_dict[model_type])
+    best_param[model_type] = param_comb
+
     model_type = constants.SVM
     param_comb = get_best_param_combination(model_type,
                                             param_dict[model_type])
-
     best_param[model_type] = param_comb
+
+    # The best param is a dictionary that contains the
+    # best combination of the parameters
     print(best_param)
 
     model_type = constants.LOG_REGRESSION
     plot_ROC_curve(train, test,
                    model_type, best_param[model_type])
 
-    # plot_bias_var_tradeoff(train, model_type,
-    #                       best_param[model_type])
+    plot_bias_var_tradeoff(train, model_type,
+                           best_param[model_type])
     
     model_type = constants.SVM
     plot_ROC_curve(train, test,
                    model_type, best_param[model_type])
 
-    # plot_bias_var_tradeoff(train, model_type,
-    #                       best_param[model_type])
+    plot_bias_var_tradeoff(train, model_type,
+                           best_param[model_type])
 
     """
     # model = get_model(constants.SVM)
     # k_fold_cross_validation(10, train_x, train_y, model)
+    # print weights for fitted SVM
+    # print(model.coef_)
+    """
