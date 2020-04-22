@@ -1,5 +1,5 @@
 import pandas as pd
-from src.util import get_xy, get_measures
+from src.util import get_xy, get_confusion_mat
 from src.confusion_matrix import ConfusionMatrix
 from src.constants import p_block,s_block,d_block,f_block
 from itertools import combinations
@@ -23,8 +23,7 @@ def get_cation_confusion_matrix(test_data,model):
         cation_data=test.loc[(test['atomic_num_1'].isin(cation_type[block_1])) & (test['atomic_num_2'].isin(cation_type[block_2]))]
         test_x,test_y=get_xy(cation_data)
         pred = model.predict(test_x)
-        tp, fp, fn, tn = get_measures(test_y, pred)
-        conf=ConfusionMatrix(tp, fp, fn, tn)
+        conf=get_confusion_mat(test_y,pred)
         S.append({"Block_1":block_1,
                 "Block_2":block_2,
                 "Accuracy":round(conf.get_accuracy(),3)})
