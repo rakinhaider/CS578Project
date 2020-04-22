@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from pandas import np
+import numpy as np
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -41,7 +41,6 @@ def get_model(model_type, **kwargs):
         else:
             model = SVC(C=c1, kernel=kern,
                         random_state=47, max_iter=10000)
-        print(model)
 
     return model
 

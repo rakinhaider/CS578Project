@@ -53,15 +53,10 @@ def plot_ROC_curve(train, test, model_type, params):
 def get_best_param_combination(model_type, param_dict):
     best_param = {}
     for param_name in param_dict.keys():
-        print(param_name, param_dict[param_name])
         accs, stds = run_xval_and_plot(train, model_type,
                                        param_name,
                                        param_dict[param_name])
-        print(accs, stds)
         max_ind = np.argmax(accs)
-        print(max_ind)
-        print(param_dict[param_name][max_ind])
-        print(best_param)
         best_param[param_name] = param_dict[param_name][max_ind]
 
     return best_param
@@ -111,15 +106,11 @@ if __name__ == "__main__":
     plot_ROC_curve(train, test,
                    model_type, best_param[model_type])
 
-    plot_bias_var_tradeoff(train, model_type,
-                           best_param[model_type])
-    
+
     model_type = constants.SVM
     plot_ROC_curve(train, test,
                    model_type, best_param[model_type])
 
-    plot_bias_var_tradeoff(train, model_type,
-                           best_param[model_type])
 
     """
     # model = get_model(constants.SVM)

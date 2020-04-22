@@ -31,12 +31,14 @@ def get_ith_fold(k, df, i):
     return train, test
 
 
-if __name__ == "__main__":
-    pass
-
-
 def cross_validate(data, model_type, dict):
     x, y = get_xy(data)
     model = get_model(model_type, **dict)
     acc, std = k_fold_cross_validation(10, x, y, model)
     return acc, std
+
+
+if __name__ == "__main__":
+    pass
+
+
