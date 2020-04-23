@@ -61,17 +61,17 @@ def get_best_param_combination(train,model_type, param_dict):
 
     return best_param
 
-def plot_bc_tradeoff(model_type,df,fraction_range,param_dict):
+def plot_bv_tradeoff(model_type,df,fraction_range,param_comb):
 
     S=[]
+    train, test = train_test_split(df)
     for frac in fraction_range:
-        train, test = train_test_split(df,fraction=frac)
         if model_type == constants.NAIVE_BAYES:
             model = get_model(model_type)
         elif model_type==(constants.SVM or constants.LOG_REGRESSION):
-            param_comb = get_best_param_combination(train,model_type,param_dict[model_type])
             model = get_model(model_type, **param_comb)
-        train_x, train_y = get_xy(train)
+        train_new = train.sample(frac=frac, random_state=47)
+        train_x, train_y = get_xy(train_new)
         test_x, test_y = get_xy(test)
         model.fit(train_x, train_y)
         pred_test = model.predict(test_x)
@@ -89,7 +89,7 @@ def plot_bc_tradeoff(model_type,df,fraction_range,param_dict):
     plt.ylabel('Error')
     plt.show()
     filename = get_filename('Bias_variance', model_type, 'pdf')
-    plt.savefig(filename, format='pdf')
+    #plt.savefig(filename, format='pdf')
     return S
 
 
