@@ -34,15 +34,27 @@ def get_model(model_type, **kwargs):
     elif model_type == constants.SVM:
         c1 = kwargs.get('reg_param', 1)
         kern = kwargs.get('kernel', 'rbf')
-        if kern == 'rbf':
-            gamma = kwargs.get('gamma', 'scale')
-            model = SVC(C=c1, kernel=kern, gamma=gamma,
-                        random_state=47, max_iter=10000,
-                        probability=True)
+        roc = kwargs.get('roc', False)
+        if roc:
+            if kern == 'rbf':
+                gamma = kwargs.get('gamma', 'scale')
+                model = SVC(C=c1, kernel=kern, gamma=gamma,
+                            random_state=47, max_iter=10000,
+                            probability=True)
+            else:
+                model = SVC(C=c1, kernel=kern,
+                            random_state=47, max_iter=10000,
+                            probability=True)
         else:
-            model = SVC(C=c1, kernel=kern,
-                        random_state=47, max_iter=10000,
-                        probability=True)
+            if kern == 'rbf':
+                gamma = kwargs.get('gamma', 'scale')
+                model = SVC(C=c1, kernel=kern, gamma=gamma,
+                            random_state=47, max_iter=10000)
+            else:
+                model = SVC(C=c1, kernel=kern,
+                            random_state=47, max_iter=10000)
+
+        # print(model)
     return model
 
 
@@ -88,7 +100,7 @@ def plot_errorbar(x, y, yerr, model_type, param_name):
     plt.xticks(ticks, x)
     plt.xlabel(param_name)
     plt.ylabel('Average Validation Accuracy with Standard Deviation')
-    plt.title('Hyper paramter vs Accuracy')
+    plt.title('Hyper parameter vs Accuracy')
     filename = get_filename('acc', model_type, 'pdf', param_name)
     plt.savefig(filename, format='pdf')
     plt.show()

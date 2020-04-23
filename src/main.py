@@ -47,7 +47,7 @@ def plot_ROC_curve(train, test, model_type, params):
         sens.append(conf_mat.get_sensitivity())
 
     plt.clf()
-    plt.plot(specs, sens)
+    plt.plot(specs, sens, '*')
     plt.plot([0, 1], [1, 0], '-')
     plt.xlabel('Specificity')
     plt.ylabel('Sensitivity')
@@ -64,7 +64,8 @@ def get_best_param_combination(train, model_type, param_dict):
                                        param_dict[param_name])
         max_ind = np.argmax(accs)
         best_param[param_name] = param_dict[param_name][max_ind]
-
+        print('Best value for hyper paramter', param_name,
+              'is', param_dict[param_name][max_ind])
     return best_param
 
 
@@ -123,8 +124,8 @@ if __name__ == "__main__":
         },
         constants.SVM: {
             'kernel': ['linear', 'rbf', 'sigmoid'],
-            'reg_param': [10000, 1000, 1, 0.0001],
-            'gamma': [2, 1, 0.5]
+            'reg_param': [0.0001, 1, 1000, 10000],
+            'gamma': [0.125, 0.25, 0.5, 1, 2]
         }
     }
 
@@ -148,8 +149,10 @@ if __name__ == "__main__":
                    model_type, best_param[model_type])
 
     model_type = constants.SVM
+    param_dict_roc = best_param[model_type]
+    param_dict_roc['roc'] = True
     plot_ROC_curve(train, test,
-                   model_type, best_param[model_type])
+                   model_type, param_dict_roc)
 
 
     """
