@@ -50,7 +50,7 @@ def plot_ROC_curve(train, test, model_type, params):
     plt.show()
 
 
-def get_best_param_combination(model_type, param_dict):
+def get_best_param_combination(train,model_type, param_dict):
     best_param = {}
     for param_name in param_dict.keys():
         accs, stds = run_xval_and_plot(train, model_type,
@@ -60,6 +60,37 @@ def get_best_param_combination(model_type, param_dict):
         best_param[param_name] = param_dict[param_name][max_ind]
 
     return best_param
+
+def plot_bv_tradeoff(model_type,df,fraction_range,param_comb):
+
+    S=[]
+    train, test = train_test_split(df)
+    for frac in fraction_range:
+        if model_type == constants.NAIVE_BAYES:
+            model = get_model(model_type)
+        elif model_type==(constants.SVM or constants.LOG_REGRESSION):
+            model = get_model(model_type, **param_comb)
+        train_new = train.sample(frac=frac, random_state=47)
+        train_x, train_y = get_xy(train_new)
+        test_x, test_y = get_xy(test)
+        model.fit(train_x, train_y)
+        pred_test = model.predict(test_x)
+        conf_test=get_confusion_mat(test_y,pred_test)
+        pred_train = model.predict(train_x)
+        conf_train=get_confusion_mat(train_y,pred_train)
+        S.append({"Fraction":frac,
+                  "Test_error":round(conf_test.get_error(),3),
+                  "Train_error":round(conf_train.get_error(),3)})
+    S_df = pd.DataFrame(S)    
+    plt.plot(S_df["Fraction"],S_df["Test_error"],label='Test Error')
+    plt.plot(S_df["Fraction"],S_df["Train_error"],label='Train Error')
+    plt.legend(loc='lower left')
+    plt.xlabel('Fraction of sample used for training')
+    plt.ylabel('Error')
+    plt.show()
+    filename = get_filename('Bias_variance', model_type, 'pdf')
+    #plt.savefig(filename, format='pdf')
+    return S
 
 
 if __name__ == "__main__":
@@ -89,14 +120,14 @@ if __name__ == "__main__":
 
     best_param = {}
     model_type = constants.LOG_REGRESSION
-    param_comb = get_best_param_combination(model_type,
+    param_comb = get_best_param_combination(train,model_type,
                                             param_dict[model_type])
     best_param[model_type] = param_comb
 
-    # model_type = constants.SVM
-    # param_comb = get_best_param_combination(model_type,
-    #                                         param_dict[model_type])
-    # best_param[model_type] = param_comb
+    model_type = constants.SVM
+    param_comb = get_best_param_combination(train,model_type,
+                                            param_dict[model_type])
+    best_param[model_type] = param_comb
 
     # The best param is a dictionary that contains the
     # best combination of the parameters

@@ -86,7 +86,7 @@ def plot_errorbar(x, y, yerr, model_type, param_name):
     plt.errorbar(ticks, y, yerr=yerr)
     plt.xticks(ticks, x)
     plt.xlabel(param_name)
-    plt.xlabel('Average Validation Accuracy with Standard Deviation')
+    plt.ylabel('Average Validation Accuracy with Standard Deviation')
     filename = get_filename('acc', model_type, 'pdf', param_name)
     plt.savefig(filename, format='pdf')
     plt.show()
