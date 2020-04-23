@@ -18,7 +18,6 @@ def k_fold_cross_validation(k, X, y, model):
         conf_mats.append(get_confusion_mat(test_y, pred))
 
     accs = [mat.get_accuracy() for mat in conf_mats]
-    print(accs)
     return np.average(accs), np.std(accs)
 
 

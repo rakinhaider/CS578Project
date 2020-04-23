@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     param_dict = {constants.LOG_REGRESSION: {
         'regularizer': ['l2', 'l1'],
-        'reg_param': [10000, 1000, 1, 0.0001]
+        'reg_param': [.000001, 0.0001, 1, 1000, 10000, 100000, 1000000]
     },
         constants.SVM: {
             'kernel': ['linear', 'rbf', 'sigmoid'],
@@ -93,10 +93,10 @@ if __name__ == "__main__":
                                             param_dict[model_type])
     best_param[model_type] = param_comb
 
-    model_type = constants.SVM
-    param_comb = get_best_param_combination(model_type,
-                                            param_dict[model_type])
-    best_param[model_type] = param_comb
+    # model_type = constants.SVM
+    # param_comb = get_best_param_combination(model_type,
+    #                                         param_dict[model_type])
+    # best_param[model_type] = param_comb
 
     # The best param is a dictionary that contains the
     # best combination of the parameters
