@@ -1,10 +1,16 @@
 import pandas as pd
 import numpy as np
-from src.util import get_model, train_test_split, get_xy, get_confusion_mat, get_filename, plot_errorbar
+from src.util import get_model, train_test_split, get_xy,\
+    get_confusion_mat, get_filename, plot_errorbar
 from src.confusion_matrix import ConfusionMatrix
 import src.constants as constants
 from src.cv import cross_validate
 import matplotlib.pyplot as plt
+
+from warnings import simplefilter
+from sklearn.exceptions import ConvergenceWarning
+simplefilter("ignore", category=ConvergenceWarning)
+simplefilter(action='ignore', category=FutureWarning)
 
 
 def run_xval_and_plot(data, model_type, param_name='none', values=None):
@@ -50,7 +56,7 @@ def plot_ROC_curve(train, test, model_type, params):
     plt.show()
 
 
-def get_best_param_combination(train,model_type, param_dict):
+def get_best_param_combination(train, model_type, param_dict):
     best_param = {}
     for param_name in param_dict.keys():
         accs, stds = run_xval_and_plot(train, model_type,
@@ -60,6 +66,7 @@ def get_best_param_combination(train,model_type, param_dict):
         best_param[param_name] = param_dict[param_name][max_ind]
 
     return best_param
+
 
 def plot_bv_tradeoff(model_type,df,fraction_range,param_comb):
 
@@ -81,7 +88,7 @@ def plot_bv_tradeoff(model_type,df,fraction_range,param_comb):
         S.append({"Fraction":frac,
                   "Test_error":round(conf_test.get_error(),3),
                   "Train_error":round(conf_train.get_error(),3)})
-    S_df = pd.DataFrame(S)    
+    S_df = pd.DataFrame(S)
     plt.plot(S_df["Fraction"],S_df["Test_error"],label='Test Error')
     plt.plot(S_df["Fraction"],S_df["Train_error"],label='Train Error')
     plt.legend(loc='lower left')
@@ -107,16 +114,16 @@ if __name__ == "__main__":
     # acc, std = cross_validate(train, constants.NAIVE_BAYES, {})
     # print('Mean Accuracy:', acc)
     # print('Standard Deviation:', std)
-
     param_dict = {constants.LOG_REGRESSION: {
         'regularizer': ['l2', 'l1'],
         'reg_param': [.000001, 0.0001, 1, 1000, 10000, 100000, 1000000]
-    },
+        },
         constants.SVM: {
             'kernel': ['linear', 'rbf', 'sigmoid'],
             'reg_param': [10000, 1000, 1, 0.0001],
             'gamma': [2, 1, 0.5]
-        }}
+        }
+    }
 
     best_param = {}
     model_type = constants.LOG_REGRESSION
@@ -136,7 +143,6 @@ if __name__ == "__main__":
     model_type = constants.LOG_REGRESSION
     plot_ROC_curve(train, test,
                    model_type, best_param[model_type])
-
 
     model_type = constants.SVM
     plot_ROC_curve(train, test,
