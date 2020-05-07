@@ -1,9 +1,9 @@
 import pandas as pd
-from src.util import get_xy, get_confusion_mat
-from src.confusion_matrix import ConfusionMatrix
+from src.util import get_xy, get_confusion_mat, get_model
 from src.constants import p_block,s_block,d_block,f_block
 from itertools import combinations
-
+import matplotlib.pyplot as plt
+import src.constants as constants
 
 cation_type={"s":s_block,
              "p":p_block,
@@ -29,3 +29,35 @@ def get_cation_confusion_matrix(test_data,model):
                 "Accuracy":round(conf.get_accuracy(),3)})
 
     return S
+
+def plot_cation(best_param,train_x,train_y,test):
+    model_type=constants.SVM
+    model = get_model(model_type,**best_param[model_type])
+    model.max_iter=1000
+    model.fit(train_x, train_y)
+    S1=get_cation_confusion_matrix(test,model)
+    S1_df=pd.DataFrame(S1)
+    model_type=constants.NAIVE_BAYES
+    model = get_model(model_type)
+    model.max_iter=1000
+    model.fit(train_x, train_y)
+    S2=get_cation_confusion_matrix(test,model)
+    S2_df=pd.DataFrame(S2)
+    model_type=constants.LOG_REGRESSION
+    model = get_model(model_type,**best_param[model_type])
+    model.max_iter=1000
+    model.fit(train_x, train_y)
+    S3=get_cation_confusion_matrix(test,model)
+    S3_df=pd.DataFrame(S3)
+    S1_df["Block"]=S1_df["Block_1"]+S1_df["Block_2"]
+    S2_df["Block"]=S2_df["Block_1"]+S2_df["Block_2"]
+    S3_df["Block"]=S3_df["Block_1"]+S3_df["Block_2"]
+    plt.plot(S1_df["Block"],S1_df["Accuracy"],label='SVM')
+    plt.plot(S2_df["Block"],S2_df["Accuracy"],label='Naive Bayes')
+    plt.plot(S3_df["Block"],S3_df["Accuracy"],label='Logistic regression')
+    plt.legend(loc='lower left')
+    plt.xlabel('Block')
+    plt.ylabel('Accuracy')
+    plt.savefig('xx.png', format='png')
+    plt.show()
+    

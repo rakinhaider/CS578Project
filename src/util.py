@@ -87,7 +87,7 @@ def get_filename(plot_type, model_type, extension,
     elif model_type == constants.SVM:
         model_type = 'SVM'
 
-    filename = '../src/outputs/' + plot_type + '_'
+    filename = './src/outputs/' + plot_type + '_'
     filename += model_type + '_'
     filename += param_name + '.' + extension
     return filename

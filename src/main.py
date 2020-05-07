@@ -74,13 +74,14 @@ def plot_bv_tradeoff(model_type,df,fraction_range,param_comb):
     S=[]
     train, test = train_test_split(df)
     for frac in fraction_range:
-        print(frac)
         if model_type == constants.NAIVE_BAYES:
             model = get_model(model_type)
         elif model_type == constants.LOG_REGRESSION:
             model = get_model(model_type, **param_comb)
+            model.max_iter=10000
         elif model_type == constants.SVM:
             model = get_model(model_type, **param_comb)
+            model.max_iter=10000
         train_new = train.sample(frac=frac, random_state=47)
         train_x, train_y = get_xy(train_new)
         test_x, test_y = get_xy(test)
